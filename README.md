@@ -1,1 +1,1 @@
-# Audio-Visualizer-
+# Earthquake mapper
