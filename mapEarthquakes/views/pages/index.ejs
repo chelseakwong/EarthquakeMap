@@ -22,48 +22,45 @@
 </head>
 
 <body>
+  <div id="map">
 
-	<div id = "map">
-		<input type="file" id="csv-file" name="files"/>
-
-	</div>
+  </div>
 	<script>
 		// B A S E  L A Y E R: source for our tile layer
-		var stamenUrl = 'http://tile.stamen.com/toner/{z}/{x}/{y}.png',
+    var token = "pk.eyJ1IjoiY2hlbHNlYTE1MTciLCJhIjoiY2lqb2N5Y2JsMDB0eHVmbTVlcnhyMDd6dCJ9.5mqK5gP_P0aDCrlP7ux7ZQ";
+    var url = "https://api.mapbox.com/v4/mapbox.light/{z}/{x}/{y}.png?access_token="+token;
+		osmAttrib = 'Map tiles by <a href="https://www.mapbox.com/developers/api/maps/#tiles">MapBox</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.',
 
-		osmAttrib = 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.',
+		baselayer = L.tileLayer(url, {attribution: osmAttrib})
 
-		baselayer = L.tileLayer(stamenUrl, {attribution: osmAttrib})
-
-		var map = new L.Map('map', {layers: [baselayer], center: new L.LatLng(40.74188, -74.00473), zoom: 2 });
+		var map = new L.Map('map', {layers: [baselayer], center: new L.LatLng(40.74188, -74.00473), zoom: 3 });
 
 		//P A R S E
-		var data;
-		function handleFileSelect(evt) {
-	 		var file = evt.target.files[0];
-			Papa.parse(file, {
+		// function handleFileSelect(evt) {
+	 // 		var file = evt.target.files[0];
+      var filePath = "data/earthquakes_all_month.csv";
+      Papa.parse(filePath, {
+        download:true,
 				header:true,
 				complete: function(results,file){
-					console.log(results);
-					console.log("Finished parsing");
+					console.log("Finished parsing map file!");
+          // go through results and plot
 					for (i = 0; i<results.data.length; i++){
 						var lat = parseFloat(results.data[i].latitude);
 						var long = parseFloat(results.data[i].longitude);
+            var mag = parseFloat(results.data[i].mag);
+						var place = results.data[i].place;
 						var newMarker = new L.circleMarker(new L.LatLng(lat,long), {
-							radius: 8,
+              fillColor: "#e61a39",
+              stroke: false,
+              radius: 7,
 							opacity: 0.5
 						});
-						var mag = results.data[i].mag;
-						var place = results.data[i].place;
-						newMarker.bindPopup('<p>Magnitude: '+mag+'</p>'+'<br><p>Place: '+place+'</p>');
+						newMarker.bindPopup('<p>Magnitude: '+mag+'</p>'+'<p>Place: '+place+'</p>');
 						newMarker.addTo(map);
 					}
-					// go through results and plot
 				}
 			});
-		}
-		$(document).ready(function(){
-    	$("#csv-file").change(handleFileSelect);
-		});
+		// }
 	</script>
 </body>
